@@ -5,6 +5,7 @@
 Task: <strong>{{.Id}}</strong><br/>
 Handler: {{.Handler}}<br/>
 State: {{.State}}<br/>
+Bucket: <a href="/bucket/{{.Bucket.Id}}">{{.Bucket.Id}}</a><br/>
 
 {{ with .Dependencies }}
 Dependencies:<br/>

@@ -41,7 +41,7 @@ type Task struct {
 	Dependencies []string    `xml:"dependency"`
 	Parameters   []Parameter `xml:"parameter"`
 	Result       *Result
-	Bucket       string
+	Bucket       *Bucket
 	State        string
 }
 
@@ -53,7 +53,7 @@ type Workflow struct {
 
 type Bucket struct {
 	Id        string
-	Tasks     []Task
+	Tasks     []*Task
 	NTasks    int
 	NComplete int
 	NFailed   int
@@ -76,6 +76,7 @@ var Template = template.Must(template.ParseGlob("*.html"))
 func count(id string, b *Bucket) {
 	b.Id = id
 	for _, task := range b.Tasks {
+		task.Bucket = b
 		b.NTasks += 1
 		if task.State == "Pending" {
 			b.NPending += 1
@@ -139,21 +140,21 @@ func get_data() WorkflowData {
 	var data WorkflowData
 	data.Workflow = workflow
 
-	for _, task := range workflow.Tasks {
+	for i, task := range workflow.Tasks {
 		if strings.HasSuffix(task.Id, "-checkout") {
-			data.SCM.Tasks = append(data.SCM.Tasks, task)
+			data.SCM.Tasks = append(data.SCM.Tasks, &workflow.Tasks[i])
 		} else if strings.HasSuffix(task.Id, "-srpm") || task.Id == "platform" || task.Id == "platform-repo" {
-			data.SRPM.Tasks = append(data.SRPM.Tasks, task)
+			data.SRPM.Tasks = append(data.SRPM.Tasks, &workflow.Tasks[i])
 		} else if strings.HasSuffix(task.Id, "-rpm") || strings.HasSuffix(task.Id, "-repo") {
 			if strings.HasSuffix(task.Id, "-b2-rpm") || task.Id == "b2-repo" {
-				data.JPB.Tasks = append(data.JPB.Tasks, task)
+				data.JPB.Tasks = append(data.JPB.Tasks, &workflow.Tasks[i])
 			} else if strings.HasSuffix(task.Id, "-b3-rpm") || task.Id == "b3-repo" {
-				data.Bootstrap.Tasks = append(data.Bootstrap.Tasks, task)
+				data.Bootstrap.Tasks = append(data.Bootstrap.Tasks, &workflow.Tasks[i])
 			} else {
-				data.Rebuild.Tasks = append(data.Rebuild.Tasks, task)
+				data.Rebuild.Tasks = append(data.Rebuild.Tasks, &workflow.Tasks[i])
 			}
 		} else if strings.HasSuffix(task.Id, "-validate") {
-			data.Validate.Tasks = append(data.Validate.Tasks, task)
+			data.Validate.Tasks = append(data.Validate.Tasks, &workflow.Tasks[i])
 		} else {
 			log.Fatal(fmt.Sprintf("Unmatched task ID: %s", task.Id))
 		}
