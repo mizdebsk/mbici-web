@@ -1,6 +1,26 @@
-<h3>Tasks</h3>
+<h3>Failed Tasks</h3>
 <ul>
-{{ range . }}
-<li><a href="/task/{{.Id}}">{{.Id}}</a></li>
-{{ end }}
+  {{ range . }}
+  {{ if eq .State "Failed" }}
+  <li><a href="/task/{{.Id}}">{{.Id}}</a></li>
+  {{ end }}
+  {{ end }}
+</ul>
+
+<h3>Pending Tasks</h3>
+<ul>
+  {{ range . }}
+  {{ if eq .State "Pending" }}
+  <li><a href="/task/{{.Id}}">{{.Id}}</a></li>
+  {{ end }}
+  {{ end }}
+</ul>
+
+<h3>Succeeded Tasks</h3>
+<ul>
+  {{ range . }}
+  {{ if eq .State "Succeeded" }}
+  <li><a href="/task/{{.Id}}">{{.Id}}</a></li>
+  {{ end }}
+  {{ end }}
 </ul>
