@@ -1,0 +1,53 @@
+{{ template "header.html" . }}
+
+<h2>Task details</h2>
+
+Task: <strong>{{.Id}}</strong><br/>
+Handler: {{.Handler}}<br/>
+
+{{ with .Dependencies }}
+Dependencies:<br/>
+<ul>
+{{ range . }}
+<li>{{.}}</li>
+{{ end }}
+</ul>
+{{ else }}
+No dependencies<br/>
+{{ end }}
+
+{{ with .Parameters }}
+Parameters:<br/>
+<ul>
+{{ range . }}
+<li>{{.Name}}: {{.Value}}</li>
+{{ end }}
+</ul>
+{{ else }}
+No parameters<br/>
+{{ end }}
+
+{{ with .Result }}
+
+State: finished<br/>
+Time started: {{.TimeStarted}}<br/>
+Time finished: {{.TimeFinished}}<br/>
+Outcome: {{.Outcome}}<br/>
+Outcome reason: {{.OutcomeReason}}<br/>
+
+{{ with .Artifacts }}
+Artifacts:<br/>
+<ul>
+{{ range . }}
+<li>{{.Type}}: {{.Name}}</li>
+{{ end }}
+</ul>
+{{ else }}
+No artifacts<br/>
+{{ end }}
+
+{{ else }}
+State: not finished<br/>
+{{ end }}
+
+{{ template "footer.html" . }}
