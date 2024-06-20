@@ -1,0 +1,6 @@
+<h3>Tasks</h3>
+<ul>
+{{ range . }}
+<li><a href="/task/{{.Id}}">{{.Id}}</a></li>
+{{ end }}
+</ul>

@@ -4,16 +4,6 @@
 
 {{ template "svg.html" . }}
 
-<h3>Running tasks</h3>
-
-{{ with .Workflow }}
-
-<ul>
-{{ range .Tasks }}
-<li><a href="/task/{{.Id}}">{{.Id}}</a></li>
-{{ end }}
-</ul>
-
-{{ end }}
+{{ template "tasks.html" .Workflow.Tasks }}
 
 {{ template "footer.html" . }}

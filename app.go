@@ -51,6 +51,7 @@ type Workflow struct {
 }
 
 type Bucket struct {
+	Id        string
 	Tasks     []Task
 	NTasks    int
 	NComplete int
@@ -71,7 +72,8 @@ type WorkflowData struct {
 
 var Template = template.Must(template.ParseGlob("*.html"))
 
-func count(b *Bucket) {
+func count(id string, b *Bucket) {
+	b.Id = id
 	for _, task := range b.Tasks {
 		b.NTasks += 1
 		if task.Result == nil {
@@ -132,7 +134,7 @@ func get_data() WorkflowData {
 	for _, task := range workflow.Tasks {
 		if strings.HasSuffix(task.Id, "-checkout") {
 			data.SCM.Tasks = append(data.SCM.Tasks, task)
-		} else if strings.HasSuffix(task.Id, "-srpm") || task.Id == "platform" {
+		} else if strings.HasSuffix(task.Id, "-srpm") || task.Id == "platform" || task.Id == "platform-repo" {
 			data.SRPM.Tasks = append(data.SRPM.Tasks, task)
 		} else if strings.HasSuffix(task.Id, "-rpm") || strings.HasSuffix(task.Id, "-repo") {
 			if strings.HasSuffix(task.Id, "-b2-rpm") || task.Id == "b2-repo" {
@@ -149,12 +151,12 @@ func get_data() WorkflowData {
 		}
 	}
 
-	count(&data.SCM)
-	count(&data.SRPM)
-	count(&data.JPB)
-	count(&data.Bootstrap)
-	count(&data.Rebuild)
-	count(&data.Validate)
+	count("scm", &data.SCM)
+	count("srpm", &data.SRPM)
+	count("jpb", &data.JPB)
+	count("bootstrap", &data.Bootstrap)
+	count("rebuild", &data.Rebuild)
+	count("validate", &data.Validate)
 
 	return data
 }
@@ -190,7 +192,30 @@ func task_handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func bucket_handler(w http.ResponseWriter, r *http.Request) {
+	bucket_id := strings.TrimPrefix(r.URL.Path, "/bucket/")
+	data := get_data()
+	var bucket Bucket
+	found := false
+	for _, b := range []Bucket{data.SCM, data.SRPM, data.JPB, data.Bootstrap, data.Rebuild, data.Validate} {
+		if b.Id == bucket_id {
+			bucket = b
+			found = true
+		}
+	}
+	if !found {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Add("Content-Type", "text/html")
+	err := Template.ExecuteTemplate(w, "bucket.html", bucket)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func main() {
+	http.HandleFunc("/bucket/", bucket_handler)
 	http.HandleFunc("/task/", task_handler)
 	http.HandleFunc("/", workflow_handler)
 	http.ListenAndServe(":8080", nil)
