@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
+	"html/template"
 	//"io/ioutil"
 	"log"
 	"net/http"
@@ -67,6 +68,8 @@ type Data struct {
 	Rebuild   Bucket
 	Validate  Bucket
 }
+
+var Template = template.Must(template.ParseGlob("*.html"))
 
 func count(b *Bucket) {
 	for _, task := range b.Tasks {
@@ -159,7 +162,7 @@ func get_data() Data {
 func handler(w http.ResponseWriter, r *http.Request) {
 	data := get_data()
 	w.Header().Add("Content-Type", "text/html")
-	err := Template.Execute(w, data)
+	err := Template.ExecuteTemplate(w, "workflow.html", data)
 	if err != nil {
 		fmt.Println(err)
 	}
