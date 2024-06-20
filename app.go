@@ -41,7 +41,6 @@ type Task struct {
 	Dependencies []string    `xml:"dependency"`
 	Parameters   []Parameter `xml:"parameter"`
 	Result       *Result
-	Bucket       *Bucket
 	State        string
 }
 
@@ -76,7 +75,6 @@ var Template = template.Must(template.ParseGlob("*.html"))
 func count(id string, b *Bucket) {
 	b.Id = id
 	for _, task := range b.Tasks {
-		task.Bucket = b
 		b.NTasks += 1
 		if task.State == "Pending" {
 			b.NPending += 1
@@ -201,30 +199,7 @@ func task_handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func bucket_handler(w http.ResponseWriter, r *http.Request) {
-	bucket_id := strings.TrimPrefix(r.URL.Path, "/bucket/")
-	data := get_data()
-	var bucket Bucket
-	found := false
-	for _, b := range []Bucket{data.SCM, data.SRPM, data.JPB, data.Bootstrap, data.Rebuild, data.Validate} {
-		if b.Id == bucket_id {
-			bucket = b
-			found = true
-		}
-	}
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-	w.Header().Add("Content-Type", "text/html")
-	err := Template.ExecuteTemplate(w, "bucket.html", bucket)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func main() {
-	http.HandleFunc("/bucket/", bucket_handler)
 	http.HandleFunc("/task/", task_handler)
 	http.HandleFunc("/", workflow_handler)
 	http.ListenAndServe(":8080", nil)
