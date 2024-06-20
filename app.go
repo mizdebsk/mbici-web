@@ -88,7 +88,7 @@ func count(b *Bucket) {
 	}
 }
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func get_data() Data {
 	// url := os.Getenv("WORKFLOW_XML")
 	// if url == "" {
 	// 	url = "https://mbi-artifacts.s3.eu-central-1.amazonaws.com/1653bbcc-1ae3-4eaa-949a-239a24cf8de9/workflow.xml"
@@ -104,8 +104,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// bytes, err := ioutil.ReadAll(resp.Body)
 
 	//bytes, err := os.ReadFile("/home/kojan/git/mbici-web/workflow.xml")
-	//bytes, err := os.ReadFile("/home/kojan/git/mbici-local/test/workflow.xml")
-	bytes, err := os.ReadFile("/home/kojan/git/mbici-fedora-pr/test/workflow.xml")
+	bytes, err := os.ReadFile("/home/kojan/git/mbici-local/test/workflow.xml")
+	//bytes, err := os.ReadFile("/home/kojan/git/mbici-fedora-pr/test/workflow.xml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -153,8 +153,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	count(&data.Rebuild)
 	count(&data.Validate)
 
+	return data
+}
+
+func handler(w http.ResponseWriter, r *http.Request) {
+	data := get_data()
 	w.Header().Add("Content-Type", "text/html")
-	err = Template.Execute(w, data)
+	err := Template.Execute(w, data)
 	if err != nil {
 		fmt.Println(err)
 	}
