@@ -42,6 +42,7 @@ type Task struct {
 	Parameters   []Parameter `xml:"parameter"`
 	Result       *Result
 	Bucket       string
+	State        string
 }
 
 type Workflow struct {
@@ -76,9 +77,9 @@ func count(id string, b *Bucket) {
 	b.Id = id
 	for _, task := range b.Tasks {
 		b.NTasks += 1
-		if task.Result == nil {
+		if task.State == "Pending" {
 			b.NPending += 1
-		} else if task.Result.Outcome == "SUCCESS" {
+		} else if task.State == "Succeeded" {
 			b.NComplete += 1
 		} else {
 			b.NFailed += 1
@@ -120,11 +121,18 @@ func get_data() WorkflowData {
 		log.Fatal(err)
 	}
 
-	for j, result := range workflow.Results {
-		for i, task := range workflow.Tasks {
+	for i, task := range workflow.Tasks {
+		for j, result := range workflow.Results {
 			if result.TaskId == task.Id {
 				workflow.Tasks[i].Result = &workflow.Results[j]
 			}
+		}
+		if workflow.Tasks[i].Result == nil {
+			workflow.Tasks[i].State = "Pending"
+		} else if workflow.Tasks[i].Result.Outcome == "SUCCESS" {
+			workflow.Tasks[i].State = "Succeeded"
+		} else {
+			workflow.Tasks[i].State = "Failed"
 		}
 	}
 
