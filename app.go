@@ -93,7 +93,7 @@ func count(id string, b *Bucket) {
 	}
 }
 
-func get_data() WorkflowData {
+func get_workflow() Workflow {
 	// url := os.Getenv("WORKFLOW_XML")
 	// if url == "" {
 	// 	url = "https://mbi-artifacts.s3.eu-central-1.amazonaws.com/1653bbcc-1ae3-4eaa-949a-239a24cf8de9/workflow.xml"
@@ -135,6 +135,12 @@ func get_data() WorkflowData {
 		}
 	}
 
+	return workflow
+}
+
+func workflow_handler(w http.ResponseWriter, r *http.Request) {
+	workflow := get_workflow()
+
 	var data WorkflowData
 	data.Workflow = workflow
 
@@ -165,11 +171,6 @@ func get_data() WorkflowData {
 	count("rebuild", &data.Rebuild)
 	count("validate", &data.Validate)
 
-	return data
-}
-
-func workflow_handler(w http.ResponseWriter, r *http.Request) {
-	data := get_data()
 	w.Header().Add("Content-Type", "text/html")
 	err := Template.ExecuteTemplate(w, "workflow.html", data)
 	if err != nil {
@@ -179,10 +180,10 @@ func workflow_handler(w http.ResponseWriter, r *http.Request) {
 
 func task_handler(w http.ResponseWriter, r *http.Request) {
 	task_id := strings.TrimPrefix(r.URL.Path, "/task/")
-	wf_data := get_data()
+	workflow := get_workflow()
 	var task Task
 	found := false
-	for _, t := range wf_data.Workflow.Tasks {
+	for _, t := range workflow.Tasks {
 		if t.Id == task_id {
 			task = t
 			found = true
