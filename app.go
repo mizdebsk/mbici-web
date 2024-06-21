@@ -51,6 +51,19 @@ type Workflow struct {
 	Results []Result `xml:"result"`
 }
 
+type Component struct {
+	XMLName   xml.Name `xml:"component"`
+	Name      string   `xml:"name"`
+	SCM       string   `xml:"scm"`
+	Commit    string   `xml:"commit"`
+	Lookaside string   `xml:"lookaside"`
+}
+
+type Subject struct {
+	XMLName    xml.Name    `xml:"subject"`
+	Components []Component `xml:"component"`
+}
+
 type Bucket struct {
 	Id        string
 	Tasks     []*Task
@@ -139,6 +152,19 @@ func get_workflow() Workflow {
 	return workflow
 }
 
+func get_subject() Subject {
+	bytes, err := os.ReadFile("/home/kojan/git/mbici-local/test/subject.xml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var subject Subject
+	if err := xml.Unmarshal(bytes, &subject); err != nil {
+		//resp.Body.Close()
+		log.Fatal(err)
+	}
+	return subject
+}
+
 func pipeline_handler(w http.ResponseWriter, r *http.Request) {
 	workflow := get_workflow()
 
@@ -188,6 +214,15 @@ func workflow_handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func subject_handler(w http.ResponseWriter, r *http.Request) {
+	subject := get_subject()
+	w.Header().Add("Content-Type", "text/html")
+	err := Template.ExecuteTemplate(w, "subject.html", subject)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func task_handler(w http.ResponseWriter, r *http.Request) {
 	task_id := strings.TrimPrefix(r.URL.Path, "/task/")
 	workflow := get_workflow()
@@ -221,6 +256,7 @@ func main() {
 
 	http.HandleFunc("/task/", task_handler)
 	http.HandleFunc("/workflow", workflow_handler)
+	http.HandleFunc("/subject", subject_handler)
 	http.HandleFunc("/", pipeline_handler)
 	http.ListenAndServe(":8080", nil)
 }

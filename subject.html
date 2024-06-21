@@ -1,0 +1,24 @@
+{{ template "header.html" . }}
+
+<h2>Test subject</h2>
+
+<p>Test subject is a concrete set of dist-git repository commits which
+are used as sources for building RPM packages.</p>
+
+<p>For each component that is part of <a href='/plan'>plan</a>, test
+subject specifies dist-git URL and exact commit hash, as well as URL
+of lookaside cache used to download source blobs from.</p>
+
+<p>Machine-readable information about test subject in XML format can
+be found in <a href='/artifacts/run/subject.xml'>subject.xml</a>.
+Human-readable information is included below.</p>
+
+{{ range .Components }}
+<h4>{{.Name}}</h4>
+<p>SCM URL: {{.SCM}}
+<br/>SCM commit: {{.Commit}}
+<br/>Lookaside URL: {{.Lookaside}}
+</p>
+{{ end }}
+
+{{ template "footer.html" . }}
