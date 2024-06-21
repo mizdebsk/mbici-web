@@ -136,8 +136,10 @@ func count(id string, b *Bucket) {
 		b.State = "Failed"
 	} else if b.NPending > 0 {
 		b.State = "Pending"
-	} else {
+	} else if b.NTasks > 0 {
 		b.State = "Succeeded"
+	} else {
+		b.State = "Skipped"
 	}
 }
 
