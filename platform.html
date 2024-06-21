@@ -1,0 +1,35 @@
+{{ template "header.html" . }}
+
+<h2>Platform</h2>
+
+<p>Platform is a minimal subset of RPM-based operating system that is
+enough to build RPM packages listed in <a href='/subject'>test
+subject</a>.</p>
+
+<p>Platform is defined by one or more YUM repositories with a number
+of RPM packages that are taken from these repositories, along with
+their runtime dependencies.</p>
+
+<p>Platform is only a small subset of the whole OS for two reasons: to
+improve build performance and to prevent new dependencies on OS
+packages from getting in unnoticed.</p>
+
+<p>Machine-readable information about platform in XML format can be
+found in <a href='/artifacts/run/platform.xml'>platform.xml</a>.
+Human-readable information is included below.</p>
+
+<h4>YUM Repositories</h4>
+<ul>
+{{ range .Repos }}
+<li>Name: {{.Name}}<br/>URL: <a href="{{.URL}}">{{.URL}}</a></li>
+{{ end }}
+</ul>
+
+<h4>Packages</h4>
+<ul>
+{{ range .Packages }}
+<li>{{.}}</li>
+{{ end }}
+</ul>
+
+{{ template "footer.html" . }}

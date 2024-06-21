@@ -51,6 +51,18 @@ type Workflow struct {
 	Results []Result `xml:"result"`
 }
 
+type Repo struct {
+	XMLName xml.Name `xml:"repo"`
+	Name    string   `xml:"name"`
+	URL     string   `xml:"url"`
+}
+
+type Platform struct {
+	XMLName  xml.Name `xml:"platform"`
+	Repos    []Repo   `xml:"repo"`
+	Packages []string `xml:"package"`
+}
+
 type Component struct {
 	XMLName   xml.Name `xml:"component"`
 	Name      string   `xml:"name"`
@@ -171,6 +183,19 @@ func get_workflow() Workflow {
 	return workflow
 }
 
+func get_platform() Platform {
+	bytes, err := os.ReadFile("/home/kojan/git/mbici-config/platform/rawhide-jdk.xml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var platform Platform
+	if err := xml.Unmarshal(bytes, &platform); err != nil {
+		//resp.Body.Close()
+		log.Fatal(err)
+	}
+	return platform
+}
+
 func get_subject() Subject {
 	bytes, err := os.ReadFile("/home/kojan/git/mbici-local/test/subject.xml")
 	if err != nil {
@@ -246,6 +271,15 @@ func workflow_handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func platform_handler(w http.ResponseWriter, r *http.Request) {
+	platform := get_platform()
+	w.Header().Add("Content-Type", "text/html")
+	err := Template.ExecuteTemplate(w, "platform.html", platform)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func subject_handler(w http.ResponseWriter, r *http.Request) {
 	subject := get_subject()
 	w.Header().Add("Content-Type", "text/html")
@@ -297,6 +331,7 @@ func main() {
 
 	http.HandleFunc("/task/", task_handler)
 	http.HandleFunc("/workflow", workflow_handler)
+	http.HandleFunc("/platform", platform_handler)
 	http.HandleFunc("/subject", subject_handler)
 	http.HandleFunc("/plan", plan_handler)
 	http.HandleFunc("/", pipeline_handler)
