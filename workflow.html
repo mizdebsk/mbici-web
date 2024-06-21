@@ -13,6 +13,31 @@ defined by <a href='/plan.html'>test plan</a>.</p>
 format can be found
 in <a href='/artifacts/run/workflow.xml'>workflow.xml</a>.</p>
 
-{{ template "tasks.html" .Tasks }}
+{{ with .FailedTasks }}
+<h3>Failed Tasks</h3>
+<ul>
+  {{ range . }}
+  <li><a href="/task/{{.Id}}">{{.Id}}</a>, {{.Result.OutcomeReason}}</li>
+  {{ end }}
+</ul>
+{{ end }}
+
+{{ with .PendingTasks }}
+<h3>Pending Tasks</h3>
+<ul>
+  {{ range . }}
+  <li><a href="/task/{{.Id}}">{{.Id}}</a></li>
+  {{ end }}
+</ul>
+{{ end }}
+
+{{ with .SucceededTasks }}
+<h3>Succeeded Tasks</h3>
+<ul>
+  {{ range . }}
+  <li><a href="/task/{{.Id}}">{{.Id}}</a>, {{.Result.OutcomeReason}}</li>
+  {{ end }}
+</ul>
+{{ end }}
 
 {{ template "footer.html" . }}

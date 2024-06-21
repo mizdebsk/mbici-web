@@ -46,9 +46,12 @@ type Task struct {
 }
 
 type Workflow struct {
-	XMLName xml.Name `xml:"workflow"`
-	Tasks   []Task   `xml:"task"`
-	Results []Result `xml:"result"`
+	XMLName        xml.Name `xml:"workflow"`
+	Tasks          []Task   `xml:"task"`
+	Results        []Result `xml:"result"`
+	PendingTasks   []*Task
+	SucceededTasks []*Task
+	FailedTasks    []*Task
 }
 
 type Repo struct {
@@ -173,10 +176,13 @@ func get_workflow() Workflow {
 		}
 		if workflow.Tasks[i].Result == nil {
 			workflow.Tasks[i].State = "Pending"
+			workflow.PendingTasks = append(workflow.PendingTasks, &workflow.Tasks[i])
 		} else if workflow.Tasks[i].Result.Outcome == "SUCCESS" {
 			workflow.Tasks[i].State = "Succeeded"
+			workflow.SucceededTasks = append(workflow.SucceededTasks, &workflow.Tasks[i])
 		} else {
 			workflow.Tasks[i].State = "Failed"
+			workflow.FailedTasks = append(workflow.FailedTasks, &workflow.Tasks[i])
 		}
 	}
 
