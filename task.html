@@ -1,4 +1,5 @@
 {{ template "header.html" . }}
+{{ $task := . }}
 
 <h2>Task details</h2>
 
@@ -29,8 +30,10 @@ No parameters<br/>
 {{ end }}
 
 {{ with .Result }}
+{{ $result := . }}
 
 State: finished<br/>
+Result ID: {{.Id}}<br/>
 Time started: {{.TimeStarted}}<br/>
 Time finished: {{.TimeFinished}}<br/>
 Outcome: {{.Outcome}}<br/>
@@ -40,7 +43,8 @@ Outcome reason: {{.OutcomeReason}}<br/>
 Artifacts:<br/>
 <ul>
 {{ range . }}
-<li>{{.Type}}: {{.Name}}</li>
+{{ $artifact := . }}
+<li>{{.Type}}: <a href="/artifact/{{$task.Id}}/{{$result.Id}}/{{$artifact.Name}}">{{.Name}}</a></li>
 {{ end }}
 </ul>
 {{ else }}

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	//"io/ioutil"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"strings"
@@ -201,6 +202,14 @@ func task_handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	mime.AddExtensionType(".log", "text/plain")
+	mime.AddExtensionType(".conf", "text/plain")
+	mime.AddExtensionType(".spec", "text/plain")
+	mime.AddExtensionType(".patch", "text/plain")
+	mime.AddExtensionType(".fmf", "text/plain")
+	mime.AddExtensionType(".yaml", "text/plain")
+	http.Handle("/artifact/", http.StripPrefix("/artifact/", http.FileServer(http.Dir("/mnt/nfs/mbi-result/local/"))))
+
 	http.HandleFunc("/task/", task_handler)
 	http.HandleFunc("/", workflow_handler)
 	http.ListenAndServe(":8080", nil)
