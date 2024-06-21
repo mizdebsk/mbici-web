@@ -156,4 +156,53 @@ scratch.</p>
   </g>
 </svg>
 
+{{ if .Workflow.FailedTasks }}
+Test <strong>FAILED</strong> for the following reasons:
+<ul>
+{{ if gt .SCM.NFailed 0 }}
+<li>failed to check out some componests from SCM</li>
+{{ end }}
+{{ if gt .SRPM.NFailed 0 }}
+<li>failed to build SRPM for some componests</li>
+{{ end }}
+{{ if gt .JPB.NFailed 0 }}
+<li>failed to build Javapackages toolkit</li>
+{{ end }}
+{{ if gt .Bootstrap.NFailed 0 }}
+<li>failed to bootstrap some components with Javapackages Bootstrap</li>
+{{ end }}
+{{ if gt .Rebuild.NFailed 0 }}
+<li>failed to rebuild some components in non-bootstrap mode</li>
+{{ end }}
+{{ if gt .Validate.NFailed 0 }}
+<li>failed to validate some builds with Javapackages Validator</li>
+{{ end }}
+</ul>
+{{ else if .Workflow.PendingTasks }}
+Test is still not complete.
+{{ else }}
+Test <strong>PASSED</strong>.
+{{ end }}
+
+{{ with .Workflow.FailedTasks }}
+<h4>Failed tasks</h4>
+The following tasks failed:
+<ul>
+{{ range . }}
+{{ $task := . }}
+<li><a href="/task/{{.Id}}"><strong>{{.Id}}</strong></a><br/>
+Reason: {{.Result.OutcomeReason}}<br/>
+{{ with .Result.Artifacts }}
+Logs:
+{{ range . }}
+{{ if eq .Type "LOG" }}
+<a href="/artifact/{{$task.Id}}/{{$task.Result.Id}}/{{.Name}}">{{.Name}}</a>
+{{ end }}
+{{ end }}
+{{ end }}
+</li>
+{{ end }}
+</ul>
+{{ end }}
+
 {{ template "footer.html" . }}
