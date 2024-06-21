@@ -1,0 +1,57 @@
+{{ template "header.html" . }}
+
+<h2>Test plan</h2>
+
+<p>Plan describes a way to build RPM packages. It specifies what
+packages are built, in which order and with what RPM macros
+defined.</p>
+
+<p>Plan consists of consecutive phases. Each phase consists of a
+number of independant RPM builds that can be done in parallel. Once
+all RPMs in particular phase are successfully built, a YUM repository
+is created out of them and made available to subsequent phases.</p>
+
+<p>Plan does not specify sources for each component. That information
+is part of <a href='/subject'>test subject</a>.</p>
+
+<p>Machine-readable information about test plan in XML format can be
+found in <a href='/artifacts/run/plan.xml'>plan.xml</a>.
+Human-readable information is included below.</p>
+
+<h4>Global macros</h4>
+{{ with .Macros }}
+RPM macros that are defined for all component builds in the whole plan:
+<ul>
+{{ range . }}
+<li>{{.Name}}: {{.Value}}</li>
+{{ end }}
+</ul>
+{{ else }}
+<p>This test plan does not specify any global RPM macros that would be
+used for all component builds in the whole plan.</p>
+{{ end }}
+
+{{ range .Phases }}
+<h4>Phase {{.Name}}</h4>
+
+{{ with .Macros }}
+RPM macros specific to this phase:
+<ul>
+{{ range . }}
+<li>{{.Name}}: {{.Value}}</li>
+{{ end }}
+</ul>
+{{ else }}
+<p>No phase-specific RPM macros are defined.</p>
+{{ end }}
+
+Components built in this phase:
+<ul>
+{{ range .Components }}
+<li>{{.}}</li>
+{{ end }}
+</ul>
+
+{{ end }}
+
+{{ template "footer.html" . }}

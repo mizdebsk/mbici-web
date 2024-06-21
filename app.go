@@ -64,6 +64,25 @@ type Subject struct {
 	Components []Component `xml:"component"`
 }
 
+type Macro struct {
+	XMLName xml.Name `xml:"macro"`
+	Name    string   `xml:"name"`
+	Value   string   `xml:"value"`
+}
+
+type Phase struct {
+	XMLName    xml.Name `xml:"phase"`
+	Name       string   `xml:"name"`
+	Macros     []Macro  `xml:"macro"`
+	Components []string `xml:"component"`
+}
+
+type Plan struct {
+	XMLName xml.Name `xml:"plan"`
+	Macros  []Macro  `xml:"macro"`
+	Phases  []Phase  `xml:"phase"`
+}
+
 type Bucket struct {
 	Id        string
 	Tasks     []*Task
@@ -165,6 +184,19 @@ func get_subject() Subject {
 	return subject
 }
 
+func get_plan() Plan {
+	bytes, err := os.ReadFile("/home/kojan/git/mbici-config/plan/bootstrap-all-rawhide.xml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var plan Plan
+	if err := xml.Unmarshal(bytes, &plan); err != nil {
+		//resp.Body.Close()
+		log.Fatal(err)
+	}
+	return plan
+}
+
 func pipeline_handler(w http.ResponseWriter, r *http.Request) {
 	workflow := get_workflow()
 
@@ -223,6 +255,15 @@ func subject_handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func plan_handler(w http.ResponseWriter, r *http.Request) {
+	plan := get_plan()
+	w.Header().Add("Content-Type", "text/html")
+	err := Template.ExecuteTemplate(w, "plan.html", plan)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func task_handler(w http.ResponseWriter, r *http.Request) {
 	task_id := strings.TrimPrefix(r.URL.Path, "/task/")
 	workflow := get_workflow()
@@ -257,6 +298,7 @@ func main() {
 	http.HandleFunc("/task/", task_handler)
 	http.HandleFunc("/workflow", workflow_handler)
 	http.HandleFunc("/subject", subject_handler)
+	http.HandleFunc("/plan", plan_handler)
 	http.HandleFunc("/", pipeline_handler)
 	http.ListenAndServe(":8080", nil)
 }
