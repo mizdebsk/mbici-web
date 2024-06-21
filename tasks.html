@@ -2,7 +2,7 @@
 <ul>
   {{ range . }}
   {{ if eq .State "Failed" }}
-  <li><a href="/task/{{.Id}}">{{.Id}}</a></li>
+  <li><a href="/task/{{.Id}}">{{.Id}}</a>, {{.Result.OutcomeReason}}</li>
   {{ end }}
   {{ end }}
 </ul>
@@ -20,7 +20,7 @@
 <ul>
   {{ range . }}
   {{ if eq .State "Succeeded" }}
-  <li><a href="/task/{{.Id}}">{{.Id}}</a></li>
+  <li><a href="/task/{{.Id}}">{{.Id}}</a>, {{.Result.OutcomeReason}}</li>
   {{ end }}
   {{ end }}
 </ul>
