@@ -61,7 +61,7 @@ type Bucket struct {
 	State     string
 }
 
-type WorkflowData struct {
+type PipelineData struct {
 	Workflow  Workflow
 	SCM       Bucket
 	SRPM      Bucket
@@ -139,10 +139,10 @@ func get_workflow() Workflow {
 	return workflow
 }
 
-func workflow_handler(w http.ResponseWriter, r *http.Request) {
+func pipeline_handler(w http.ResponseWriter, r *http.Request) {
 	workflow := get_workflow()
 
-	var data WorkflowData
+	var data PipelineData
 	data.Workflow = workflow
 
 	for i, task := range workflow.Tasks {
@@ -173,7 +173,16 @@ func workflow_handler(w http.ResponseWriter, r *http.Request) {
 	count("validate", &data.Validate)
 
 	w.Header().Add("Content-Type", "text/html")
-	err := Template.ExecuteTemplate(w, "workflow.html", data)
+	err := Template.ExecuteTemplate(w, "pipeline.html", data)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func workflow_handler(w http.ResponseWriter, r *http.Request) {
+	workflow := get_workflow()
+	w.Header().Add("Content-Type", "text/html")
+	err := Template.ExecuteTemplate(w, "workflow.html", workflow)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -211,6 +220,7 @@ func main() {
 	http.Handle("/artifact/", http.StripPrefix("/artifact/", http.FileServer(http.Dir("/mnt/nfs/mbi-result/local/"))))
 
 	http.HandleFunc("/task/", task_handler)
-	http.HandleFunc("/", workflow_handler)
+	http.HandleFunc("/workflow", workflow_handler)
+	http.HandleFunc("/", pipeline_handler)
 	http.ListenAndServe(":8080", nil)
 }
