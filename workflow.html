@@ -2,6 +2,17 @@
 
 <h2>Workflow details</h2>
 
+<p>Workflow is a set of tasks, which all must be successfully
+completed in order for the test to pass. Constituent tasks are steps
+necessary to build RPM packages from sources specified
+by <a href='/subject'>test subject</a> on
+given <a href='/platform'>operating system platform</a>, in the way
+defined by <a href='/plan.html'>test plan</a>.</p>
+
+<p>Detailed machine-readable information about test results in XML
+format can be found
+in <a href='/artifacts/run/workflow.xml'>workflow.xml</a>.</p>
+
 {{ template "tasks.html" .Tasks }}
 
 {{ template "footer.html" . }}
