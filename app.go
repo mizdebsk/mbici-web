@@ -241,7 +241,7 @@ func pipeline_handler(w http.ResponseWriter, r *http.Request) {
 			data.SCM.Tasks = append(data.SCM.Tasks, &workflow.Tasks[i])
 		} else if strings.HasSuffix(task.Id, "-srpm") || task.Id == "platform" || task.Id == "platform-repo" {
 			data.SRPM.Tasks = append(data.SRPM.Tasks, &workflow.Tasks[i])
-		} else if strings.HasSuffix(task.Id, "-rpm") || strings.HasSuffix(task.Id, "-repo") {
+		} else if strings.HasSuffix(task.Id, "-rpm") || strings.HasSuffix(task.Id, "-repo") || task.Id == "compose" {
 			if strings.HasSuffix(task.Id, "-b2-rpm") || task.Id == "b2-repo" {
 				data.JPB.Tasks = append(data.JPB.Tasks, &workflow.Tasks[i])
 			} else if strings.HasSuffix(task.Id, "-b3-rpm") || task.Id == "b3-repo" {
